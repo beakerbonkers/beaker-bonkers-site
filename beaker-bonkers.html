@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beaker Bonkers — Science That Goes BOOM!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+/* ==========================================================================
+   BEAKER BONKERS — Kids' Science YouTube Channel Site
+   ------------------------------------------------------------------------
+   HOW THIS FILE IS ORGANIZED (read this if you're new here!):
+   1. CSS VARIABLES & RESET     — colors, fonts, base rules
+   2. LAYOUT & COMPONENTS       — nav, hero, cards, quiz, footer
+   3. ANIMATIONS                — bubbles, wiggles, confetti
+   4. HTML                      — the actual page markup
+   5. DATA (in <script> below)  — EXPERIMENTS and QUIZZES arrays.
+                                   ^ THIS is what you'll edit most often.
+   6. APP LOGIC (in <script>)   — renders cards, runs quizzes, no reload
+   ========================================================================== */
+
+:root{
+  --teal:#00C2B2;
+  --teal-dark:#049284;
+  --yellow:#FFD23F;
+  --pink:#FF5DA2;
+  --lime:#9DE649;
+  --ink:#1B1B2F;
+  --bg:#F2FBFA;
+  --card-bg:#FFFFFF;
+  --shadow: 0 8px 0 rgba(27,27,47,0.08);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --max-w: 1080px;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Nunito', sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{
+  font-family:'Baloo 2', 'Nunito', sans-serif;
+  font-weight:700;
+  margin:0 0 .4em 0;
+  line-height:1.1;
+}
+p{ line-height:1.55; }
+img,svg{ max-width:100%; display:block; }
+a{ color:inherit; }
+button{ font-family:inherit; cursor:pointer; }
+
+.wrap{ max-width:var(--max-w); margin:0 auto; padding:0 24px; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+}
+
+/* focus visibility */
+a:focus-visible, button:focus-visible, input:focus-visible{
+  outline:3px solid var(--ink);
+  outline-offset:3px;
+  border-radius:8px;
+}
+
+/* ---------------- NAV ---------------- */
+.topnav{
+  position:sticky; top:0; z-index:50;
+  background:var(--bg);
+  border-bottom:4px solid var(--ink);
+}
+.topnav .wrap{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 24px;
+  gap:16px;
+}
+.logo{
+  display:flex; align-items:center; gap:8px;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  font-size:1.5rem;
+  letter-spacing:-0.5px;
+  white-space:nowrap;
+}
+.logo .beaker-icon{
+  font-size:1.6rem;
+  display:inline-block;
+  transform:rotate(-8deg);
+  animation:wiggle 4s ease-in-out infinite;
+}
+.logo .lo{ color:var(--teal-dark); }
+.logo .go{ color:var(--pink); }
+
+.navlinks{
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+.navlinks button{
+  background:transparent;
+  border:none;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size:1rem;
+  padding:10px 16px;
+  border-radius:999px;
+  color:var(--ink);
+  transition:transform .15s ease, background .15s ease;
+}
+.navlinks button:hover{ background:rgba(0,194,178,0.14); transform:translateY(-2px); }
+.navlinks button.active{ background:var(--ink); color:var(--bg); }
+
+/* ---------------- PAGES ---------------- */
+.page{ display:none; }
+.page.active{ display:block; }
+
+/* ---------------- HERO ---------------- */
+.hero{
+  position:relative;
+  padding:70px 0 60px;
+  overflow:hidden;
+}
+.hero .wrap{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap:40px;
+  align-items:center;
+}
+.hero-eyebrow-free-tagline{
+  font-family:'Baloo 2', sans-serif;
+  font-size:1.15rem;
+  color:var(--teal-dark);
+  font-weight:700;
+  margin-bottom:6px;
+}
+.hero h1{
+  font-size:clamp(2.4rem, 5vw, 3.6rem);
+  color:var(--ink);
+}
+.hero h1 .boom{
+  color:var(--pink);
+  display:inline-block;
+}
+.hero p.sub{
+  font-size:1.2rem;
+  max-width:520px;
+  margin-bottom:26px;
+}
+.cta-row{ display:flex; gap:14px; flex-wrap:wrap; }
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size:1.05rem;
+  padding:14px 26px;
+  border-radius:999px;
+  border:3px solid var(--ink);
+  background:var(--yellow);
+  color:var(--ink);
+  box-shadow: 0 5px 0 var(--ink);
+  transition: transform .12s ease, box-shadow .12s ease;
+  text-decoration:none;
+}
+.btn:hover{ transform:translateY(-3px); }
+.btn:active{ transform:translateY(2px); box-shadow:0 2px 0 var(--ink); }
+.btn.pink{ background:var(--pink); color:#fff; }
+.btn.teal{ background:var(--teal); color:#fff; }
+.btn.ghost{ background:transparent; }
+.btn.small{ padding:9px 18px; font-size:0.92rem; box-shadow:0 4px 0 var(--ink); }
+
+.hero-art{
+  position:relative;
+  aspect-ratio: 1 / 1;
+  border-radius:32px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 45%),
+    linear-gradient(135deg, var(--teal), var(--lime));
+  border:4px solid var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: var(--shadow);
+}
+.hero-art .big-emoji{
+  font-size:7rem;
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,0.12));
+  animation: float-up-down 3.2s ease-in-out infinite;
+}
+.floaty{
+  position:absolute;
+  font-size:1.8rem;
+  animation: float-up-down 4s ease-in-out infinite;
+  opacity:0.9;
+}
+
+/* bubble field behind hero */
+.bubble-field{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+.bubble{
+  position:absolute;
+  bottom:-60px;
+  border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.9), rgba(0,194,178,0.25));
+  border:2px solid rgba(27,27,47,0.15);
+  animation-name: rise;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+
+/* ---------------- SECTION HEADERS ---------------- */
+.section{ padding:56px 0; }
+.section-head{ margin-bottom:28px; max-width:640px; }
+.section-head h2{ font-size:clamp(1.7rem, 3.4vw, 2.3rem); }
+.section-head p{ font-size:1.05rem; color:#3a3a52; }
+.section.alt{ background:#FFFFFF; border-top:4px solid var(--ink); border-bottom:4px solid var(--ink); }
+
+/* ---------------- CARD GRID ---------------- */
+.card-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap:22px;
+}
+.exp-card{
+  background:var(--card-bg);
+  border:3px solid var(--ink);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  box-shadow: var(--shadow);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.exp-card:hover{ transform:translateY(-5px) rotate(-0.4deg); box-shadow:0 12px 0 rgba(27,27,47,0.1); }
+.exp-thumb{
+  height:150px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.4rem;
+  border-bottom:3px solid var(--ink);
+}
+.exp-body{ padding:18px 18px 20px; display:flex; flex-direction:column; gap:10px; flex:1; }
+.exp-tags{ display:flex; gap:6px; flex-wrap:wrap; }
+.tag{
+  font-family:'Baloo 2', sans-serif;
+  font-size:0.72rem;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:999px;
+  border:2px solid var(--ink);
+  background:#fff;
+}
+.tag.diff-Easy{ background:var(--lime); }
+.tag.diff-Medium{ background:var(--yellow); }
+.tag.diff-Whoa\!{ background:var(--pink); color:#fff; }
+.exp-body h3{ font-size:1.2rem; }
+.exp-body p{ font-size:0.95rem; color:#3a3a52; flex:1; }
+.exp-actions{ display:flex; gap:10px; margin-top:6px; flex-wrap:wrap; }
+
+/* ---------------- FILTERS ---------------- */
+.filter-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px; }
+.filter-chip{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size:0.9rem;
+  padding:9px 18px;
+  border-radius:999px;
+  border:3px solid var(--ink);
+  background:#fff;
+  transition: transform .12s ease, background .12s ease;
+}
+.filter-chip:hover{ transform:translateY(-2px); }
+.filter-chip.active{ background:var(--ink); color:var(--bg); }
+
+/* ---------------- QUIZ ZONE ---------------- */
+.quiz-picker{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; }
+.quiz-pick-card{
+  background:#fff; border:3px solid var(--ink); border-radius:var(--radius-md);
+  padding:18px; box-shadow:var(--shadow); text-align:left; width:100%;
+  transition:transform .15s ease;
+  font-family:'Nunito',sans-serif;
+}
+.quiz-pick-card:hover{ transform:translateY(-4px); }
+.quiz-pick-card h3{ font-size:1.1rem; margin-bottom:4px; }
+.quiz-pick-card span{ font-size:0.85rem; color:#5a5a72; }
+
+.quiz-stage{
+  background:#fff; border:4px solid var(--ink); border-radius:var(--radius-lg);
+  padding:32px; max-width:640px; margin:0 auto; box-shadow:var(--shadow);
+  position:relative;
+}
+.quiz-progress{ font-family:'Baloo 2',sans-serif; color:var(--teal-dark); font-weight:700; margin-bottom:8px; }
+.quiz-question{ font-size:1.3rem; margin-bottom:22px; }
+.quiz-options{ display:flex; flex-direction:column; gap:12px; }
+.quiz-opt{
+  text-align:left;
+  padding:14px 18px;
+  border:3px solid var(--ink);
+  border-radius:var(--radius-sm);
+  background:#fff;
+  font-size:1.02rem;
+  font-weight:600;
+  transition:transform .1s ease, background .15s ease;
+}
+.quiz-opt:hover{ transform:translateX(4px); background:rgba(0,194,178,0.1); }
+.quiz-opt.correct{ background:var(--lime); }
+.quiz-opt.incorrect{ background:var(--pink); color:#fff; }
+.quiz-opt[disabled]{ cursor:default; }
+.quiz-feedback{
+  margin-top:18px; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.1rem;
+  min-height:1.4em;
+}
+.quiz-feedback.good{ color:var(--teal-dark); }
+.quiz-feedback.bad{ color:#c93a7a; }
+.quiz-next-row{ margin-top:18px; display:flex; justify-content:flex-end; }
+.quiz-score-emoji{ font-size:3.6rem; text-align:center; margin-bottom:8px; }
+.back-link{
+  display:inline-block; margin-bottom:18px;
+  font-family:'Baloo 2', sans-serif; font-weight:700; font-size:0.95rem;
+  border:none; background:none; color:var(--teal-dark);
+}
+.back-link:hover{ text-decoration:underline; }
+
+/* ---------------- ABOUT ---------------- */
+.about-grid{
+  display:grid; grid-template-columns: 0.9fr 1.1fr; gap:40px; align-items:start;
+}
+.about-photo{
+  aspect-ratio:1/1; border-radius:28px; border:4px solid var(--ink);
+  background:linear-gradient(135deg, var(--pink), var(--yellow));
+  display:flex; align-items:center; justify-content:center; font-size:6rem;
+  box-shadow:var(--shadow);
+}
+.mission-box{
+  margin-top:18px; padding:20px 22px; border-radius:var(--radius-md);
+  border:3px dashed var(--ink); background:#fff;
+}
+
+/* ---------------- FOOTER ---------------- */
+footer{
+  border-top:4px solid var(--ink);
+  background:var(--ink);
+  color:var(--bg);
+  padding:40px 0 26px;
+  margin-top:20px;
+}
+footer .wrap{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:28px; }
+.foot-col h4{ color:#fff; font-size:1.05rem; margin-bottom:10px; }
+.foot-col a{ display:block; text-decoration:none; color:#cfd8e6; margin-bottom:6px; font-weight:600; }
+.foot-col a:hover{ color:var(--yellow); }
+.safety-note{
+  background:rgba(255,255,255,0.08);
+  border:2px solid rgba(255,255,255,0.25);
+  border-radius:var(--radius-sm);
+  padding:14px 18px;
+  max-width:340px;
+  font-size:0.9rem;
+}
+.foot-bottom{
+  text-align:center; font-size:0.8rem; color:#8b93a8;
+  margin-top:26px;
+}
+
+/* ---------------- CONFETTI ---------------- */
+.confetti-piece{
+  position:fixed; top:-20px; z-index:999; pointer-events:none;
+  border-radius:2px;
+  animation-name: confetti-fall; animation-timing-function: linear;
+}
+
+/* ---------------- ANIMATIONS ---------------- */
+@keyframes wiggle{
+  0%,100%{ transform:rotate(-8deg); }
+  50%{ transform:rotate(8deg); }
+}
+@keyframes float-up-down{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-14px); }
+}
+@keyframes rise{
+  0%{ transform:translateY(0) translateX(0); opacity:0.9; }
+  100%{ transform:translateY(-620px) translateX(20px); opacity:0; }
+}
+@keyframes confetti-fall{
+  0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+  100%{ transform:translateY(100vh) rotate(360deg); opacity:0; }
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width:820px){
+  .hero .wrap{ grid-template-columns:1fr; }
+  .hero-art{ max-width:340px; margin:0 auto; }
+  .about-grid{ grid-template-columns:1fr; }
+  .about-photo{ max-width:260px; margin:0 auto; }
+}
+@media (max-width:560px){
+  .topnav .wrap{ flex-direction:column; align-items:flex-start; gap:10px; }
+  .navlinks{ width:100%; justify-content:space-between; }
+  .navlinks button{ padding:8px 10px; font-size:0.88rem; flex:1; text-align:center; }
+  .quiz-stage{ padding:22px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <div class="logo"><span class="beaker-icon">🧪</span><span class="lo">Beaker</span><span class="go">Bonkers</span></div>
+    <div class="navlinks" id="navlinks">
+      <button data-page="home" class="active">Home</button>
+      <button data-page="experiments">Experiments</button>
+      <button data-page="quiz">Quiz Zone</button>
+      <button data-page="about">About</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================== HOME ============================== -->
+<section class="page active" id="page-home">
+  <div class="hero">
+    <div class="bubble-field" id="bubbleField"></div>
+    <div class="wrap">
+      <div>
+        <div class="hero-eyebrow-free-tagline">Hi, science squad! 👋</div>
+        <h1>Science that goes <span class="boom">BOOM!</span></h1>
+        <p class="sub">Beaker Bonkers is a YouTube channel made BY a kid, FOR kids, all about blowing minds (and sometimes bubbles) with experiments you can try at home.</p>
+        <div class="cta-row">
+          <a class="btn pink" href="https://www.youtube.com/" target="_blank" rel="noopener">▶ Subscribe on YouTube</a>
+          <button class="btn" data-goto="experiments">🔬 See Experiments</button>
+        </div>
+      </div>
+      <div class="hero-art">
+        <span class="floaty" style="top:8%; left:10%;">✨</span>
+        <span class="floaty" style="top:14%; right:8%; animation-delay:1s;">💥</span>
+        <span class="floaty" style="bottom:10%; left:14%; animation-delay:2s;">🫧</span>
+        <span class="big-emoji">🧪</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Featured experiments</h2>
+        <p>Fresh off the lab bench — start with these!</p>
+      </div>
+      <div class="card-grid" id="featuredGrid"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="wrap" style="text-align:center;">
+      <h2>Never miss a boom 💥</h2>
+      <p style="max-width:480px; margin:0 auto 22px;">New experiments drop every week. Subscribe so you don't miss the next mess.</p>
+      <a class="btn teal" href="https://www.youtube.com/" target="_blank" rel="noopener">▶ Subscribe for Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- ========================== EXPERIMENTS ========================== -->
+<section class="page" id="page-experiments">
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Experiments library</h2>
+        <p>Every experiment we've ever filmed, all in one messy pile. Tap a category to filter.</p>
+      </div>
+      <div class="filter-row" id="filterRow"></div>
+      <div class="card-grid" id="libraryGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ QUIZ ZONE =========================== -->
+<section class="page" id="page-quiz">
+  <div class="section">
+    <div class="wrap" id="quizPickerWrap">
+      <div class="section-head">
+        <h2>Quiz zone 🧠</h2>
+        <p>Watched an experiment? Prove you were paying attention (no pressure, just fun).</p>
+      </div>
+      <div class="quiz-picker" id="quizPicker"></div>
+    </div>
+
+    <div class="wrap" id="quizStageWrap" style="display:none;">
+      <button class="back-link" id="quizBackBtn">← Back to quiz list</button>
+      <div class="quiz-stage" id="quizStage"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== ABOUT ============================= -->
+<section class="page" id="page-about">
+  <div class="section">
+    <div class="wrap about-grid">
+      <div class="about-photo">🧑‍🔬</div>
+      <div>
+        <h2>About the scientist</h2>
+        <p>Hi! I'm the kid behind Beaker Bonkers. I started this channel because I got a chemistry set for my birthday and, well... I never really stopped. Now I turn our kitchen into a lab every weekend and film whatever chaos happens next. (Sorry, Mom.)</p>
+        <p>My favorite thing in the whole world is that moment right before an experiment works — or explodes — or does something nobody expected. That's the best part of science: you genuinely don't always know what's going to happen.</p>
+        <div class="mission-box">
+          <strong>Our mission:</strong> to show kids that science isn't a subject you sit through — it's a way of asking "what if?" and then actually finding out. Every experiment on this channel is something YOU can try, with a grown-up's help and stuff from around the house.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-col">
+      <h4>Beaker Bonkers</h4>
+      <a href="https://www.youtube.com/" target="_blank" rel="noopener">▶ YouTube Channel</a>
+      <a href="#" onclick="return false;">📸 Instagram (coming soon)</a>
+      <a href="#" onclick="return false;">🎵 TikTok (coming soon)</a>
+    </div>
+    <div class="foot-col">
+      <h4>Explore</h4>
+      <a href="#" data-goto="experiments">Experiments Library</a>
+      <a href="#" data-goto="quiz">Quiz Zone</a>
+      <a href="#" data-goto="about">About</a>
+    </div>
+    <div class="foot-col">
+      <div class="safety-note">⚠️ <strong>Safety first!</strong> Always do experiments with a grown-up around, and never try anything from these videos alone.</div>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 Beaker Bonkers. Made with curiosity and a little bit of chaos.</div>
+</footer>
+
+<script>
+/* ==========================================================================
+   1. DATA — EDIT THIS SECTION TO ADD YOUR OWN CONTENT
+   ========================================================================== */
+
+// --- EXPERIMENTS -----------------------------------------------------------
+// To add a new experiment: copy one object below, give it a unique "id",
+// and fill in the fields. "youtubeId" is the part of the YouTube URL after
+// "watch?v=" — swap in the real one once the video is live.
+const EXPERIMENTS = [
+  {
+    id: "exp-volcano",
+    title: "Kitchen Volcano Eruption",
+    category: "Explosions & Reactions",
+    difficulty: "Easy",
+    emoji: "🌋",
+    blurb: "Baking soda + vinegar = a lava explosion you can build on your counter.",
+    youtubeId: "dQw4w9WgXcQ"
+  },
+  {
+    id: "exp-slime",
+    title: "Stretchy Glow Slime",
+    category: "Kitchen Science",
+    difficulty: "Easy",
+    emoji: "🟢",
+    blurb: "We make slime glow under a blacklight using one secret ingredient.",
+    youtubeId: "dQw4w9WgXcQ"
+  },
+  {
+    id: "exp-rocket",
+    title: "Film Canister Rocket",
+    category: "Physics",
+    difficulty: "Medium",
+    emoji: "🚀",
+    blurb: "A tiny rocket that actually launches, powered by fizzy tablets.",
+    youtubeId: "dQw4w9WgXcQ"
+  },
+  {
+    id: "exp-crystals",
+    title: "Grow Your Own Crystals",
+    category: "Chemistry",
+    difficulty: "Medium",
+    emoji: "💎",
+    blurb: "Turn sugar water into sparkly crystal towers over one week.",
+    youtubeId: "dQw4w9WgXcQ"
+  },
+  {
+    id: "exp-fire",
+    title: "Elephant Toothpaste (BIG Foam!)",
+    category: "Explosions & Reactions",
+    difficulty: "Whoa!",
+    emoji: "🐘",
+    blurb: "A foam eruption so big we had to film it outside. Ask an adult for this one!",
+    youtubeId: "dQw4w9WgXcQ"
+  }
+];
+
+// --- QUIZZES -----------------------------------------------------------
+// Each quiz's "id" should match an EXPERIMENTS "id" above so it links up
+// on the card. "correct" is the index (starting at 0) of the right option.
+const QUIZZES = [
+  {
+    id: "exp-volcano",
+    title: "Kitchen Volcano Quiz",
+    emoji: "🌋",
+    questions: [
+      { q: "What TWO ingredients make the 'lava' fizz?", options: ["Baking soda & vinegar", "Sugar & water", "Salt & oil"], correct: 0,
+        good: "Boom! You got it! 🎉", bad: "Oops, not quite — try again next time!" },
+      { q: "The reaction between them makes mostly...", options: ["Smoke", "Carbon dioxide gas", "Steam"], correct: 1,
+        good: "Whoa, science brain activated! 🧠", bad: "Close, but not quite — it's a gas!" },
+      { q: "What color is often added to make it look like lava?", options: ["Blue", "Red or orange", "Purple"], correct: 1,
+        good: "Nailed it! 🔥", bad: "Not quite — think fire colors!" }
+    ]
+  },
+  {
+    id: "exp-slime",
+    title: "Glow Slime Quiz",
+    emoji: "🟢",
+    questions: [
+      { q: "What makes the slime glow under blacklight?", options: ["Glitter", "A UV-reactive ingredient", "Food coloring"], correct: 1,
+        good: "Bright and correct! ✨", bad: "Not quite — try again!" },
+      { q: "Slime is an example of what kind of material?", options: ["A polymer", "A metal", "A gas"], correct: 0,
+        good: "Boom! You got it! 🎉", bad: "Oops — it's stretchy because it's a polymer." },
+      { q: "What happens if you leave slime out uncovered?", options: ["It grows bigger", "It dries out", "It turns invisible"], correct: 1,
+        good: "Correct! You know your slime.", bad: "Not quite — keep it in a container!" }
+    ]
+  },
+  {
+    id: "exp-rocket",
+    title: "Film Canister Rocket Quiz",
+    emoji: "🚀",
+    questions: [
+      { q: "What actually launches the rocket into the air?", options: ["A built-up gas pushing the lid off", "Magic", "A rubber band"], correct: 0,
+        good: "3-2-1 correct! 🚀", bad: "Not quite — think pressure!" },
+      { q: "This experiment is mostly an example of...", options: ["Chemistry", "Physics (force & pressure)", "Biology"], correct: 1,
+        good: "Whoa, science brain activated! 🧠", bad: "Close! It's really about physics." }
+    ]
+  },
+  {
+    id: "exp-crystals",
+    title: "Grow Your Own Crystals Quiz",
+    emoji: "💎",
+    questions: [
+      { q: "What do you dissolve in hot water to grow crystals?", options: ["Sugar", "Sand", "Paper"], correct: 0,
+        good: "Sweet and correct! 🎉", bad: "Not quite — it's something sweet!" },
+      { q: "Crystals form as the water...", options: ["Freezes", "Evaporates slowly", "Turns blue"], correct: 1,
+        good: "Boom! You got it!", bad: "Not quite — it's about evaporation." }
+    ]
+  },
+  {
+    id: "exp-fire",
+    title: "Elephant Toothpaste Quiz",
+    emoji: "🐘",
+    questions: [
+      { q: "Why is this experiment best done outside?", options: ["It's loud", "The foam eruption is huge", "It needs sunlight"], correct: 1,
+        good: "Boom! You got it! 🎉", bad: "Not quite — think about the size of the foam!" },
+      { q: "What speeds up the reaction to make it erupt fast?", options: ["Yeast", "A catalyst", "Sugar"], correct: 1,
+        good: "Whoa, science brain activated! 🧠", bad: "Close — the answer is a catalyst." },
+      { q: "Why should a grown-up be there for this one?", options: ["It's boring alone", "Some ingredients need careful handling", "It takes too long"], correct: 1,
+        good: "Safety smarts! You got it. 🛟", bad: "Not quite — some ingredients here need adult help." }
+    ]
+  }
+];
+
+/* ==========================================================================
+   2. NAVIGATION
+   ========================================================================== */
+function gotoPage(name){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  document.querySelectorAll("#navlinks button").forEach(b => {
+    b.classList.toggle("active", b.dataset.page === name);
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+document.querySelectorAll("#navlinks button").forEach(btn=>{
+  btn.addEventListener("click", ()=> gotoPage(btn.dataset.page));
+});
+document.querySelectorAll("[data-goto]").forEach(el=>{
+  el.addEventListener("click", (e)=>{ e.preventDefault(); gotoPage(el.dataset.goto); });
+});
+
+/* ==========================================================================
+   3. RENDER EXPERIMENT CARDS
+   ========================================================================== */
+function experimentCardHTML(exp){
+  return `
+    <div class="exp-card" data-category="${exp.category}">
+      <div class="exp-thumb" style="background:${thumbColor(exp.category)}">${exp.emoji}</div>
+      <div class="exp-body">
+        <div class="exp-tags">
+          <span class="tag">${exp.category}</span>
+          <span class="tag diff-${exp.difficulty}">${exp.difficulty}</span>
+        </div>
+        <h3>${exp.title}</h3>
+        <p>${exp.blurb}</p>
+        <div class="exp-actions">
+          <a class="btn small pink" href="https://www.youtube.com/watch?v=${exp.youtubeId}" target="_blank" rel="noopener">▶ Watch Now</a>
+          <button class="btn small ghost" data-quiz="${exp.id}">🧠 Take Quiz</button>
+        </div>
+      </div>
+    </div>`;
+}
+function thumbColor(category){
+  const map = {
+    "Chemistry":"linear-gradient(135deg,#B9F3E0,#00C2B2)",
+    "Physics":"linear-gradient(135deg,#FFE9A8,#FFD23F)",
+    "Kitchen Science":"linear-gradient(135deg,#D6F5B0,#9DE649)",
+    "Explosions & Reactions":"linear-gradient(135deg,#FFC2DE,#FF5DA2)",
+    "Nature":"linear-gradient(135deg,#C9F0D8,#59C97F)"
+  };
+  return map[category] || "linear-gradient(135deg,#eee,#ccc)";
+}
+
+// Featured (first 3) on home page
+document.getElementById("featuredGrid").innerHTML =
+  EXPERIMENTS.slice(0,3).map(experimentCardHTML).join("");
+
+// Full library + filters
+const CATEGORIES = ["All", ...new Set(EXPERIMENTS.map(e=>e.category))];
+document.getElementById("filterRow").innerHTML = CATEGORIES.map((c,i)=>
+  `<button class="filter-chip ${i===0?'active':''}" data-cat="${c}">${c}</button>`
+).join("");
+
+function renderLibrary(filter){
+  const list = filter==="All" ? EXPERIMENTS : EXPERIMENTS.filter(e=>e.category===filter);
+  document.getElementById("libraryGrid").innerHTML = list.map(experimentCardHTML).join("");
+  attachQuizButtons();
+}
+document.querySelectorAll(".filter-chip").forEach(chip=>{
+  chip.addEventListener("click", ()=>{
+    document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    renderLibrary(chip.dataset.cat);
+  });
+});
+renderLibrary("All");
+
+function attachQuizButtons(){
+  document.querySelectorAll("[data-quiz]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      gotoPage("quiz");
+      openQuiz(btn.dataset.quiz);
+    });
+  });
+}
+attachQuizButtons();
+
+/* ==========================================================================
+   4. QUIZ ZONE LOGIC
+   ========================================================================== */
+document.getElementById("quizPicker").innerHTML = QUIZZES.map(q=>`
+  <button class="quiz-pick-card" data-quiz="${q.id}">
+    <h3>${q.emoji} ${q.title}</h3>
+    <span>${q.questions.length} questions</span>
+  </button>`).join("");
+
+document.querySelectorAll("#quizPicker [data-quiz]").forEach(btn=>{
+  btn.addEventListener("click", ()=> openQuiz(btn.dataset.quiz));
+});
+
+document.getElementById("quizBackBtn").addEventListener("click", ()=>{
+  document.getElementById("quizStageWrap").style.display = "none";
+  document.getElementById("quizPickerWrap").style.display = "block";
+});
+
+let currentQuiz = null;
+let currentQIndex = 0;
+let currentScore = 0;
+
+function openQuiz(quizId){
+  currentQuiz = QUIZZES.find(q=>q.id===quizId);
+  if(!currentQuiz) return;
+  currentQIndex = 0;
+  currentScore = 0;
+  document.getElementById("quizPickerWrap").style.display = "none";
+  document.getElementById("quizStageWrap").style.display = "block";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const stage = document.getElementById("quizStage");
+  const total = currentQuiz.questions.length;
+  const qData = currentQuiz.questions[currentQIndex];
+  stage.innerHTML = `
+    <div class="quiz-progress">${currentQuiz.emoji} Question ${currentQIndex+1} of ${total}</div>
+    <div class="quiz-question">${qData.q}</div>
+    <div class="quiz-options">
+      ${qData.options.map((opt,i)=>`<button class="quiz-opt" data-i="${i}">${opt}</button>`).join("")}
+    </div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <div class="quiz-next-row" id="quizNextRow"></div>
+  `;
+  stage.querySelectorAll(".quiz-opt").forEach(optBtn=>{
+    optBtn.addEventListener("click", ()=> answerQuestion(parseInt(optBtn.dataset.i)));
+  });
+}
+
+function answerQuestion(chosenIndex){
+  const qData = currentQuiz.questions[currentQIndex];
+  const opts = document.querySelectorAll(".quiz-opt");
+  opts.forEach(o=> o.disabled = true);
+  const isCorrect = chosenIndex === qData.correct;
+  opts[chosenIndex].classList.add(isCorrect ? "correct" : "incorrect");
+  if(!isCorrect) opts[qData.correct].classList.add("correct");
+
+  const feedback = document.getElementById("quizFeedback");
+  feedback.textContent = isCorrect ? qData.good : qData.bad;
+  feedback.className = "quiz-feedback " + (isCorrect ? "good" : "bad");
+  if(isCorrect){ currentScore++; launchConfetti(); }
+
+  const isLast = currentQIndex === currentQuiz.questions.length - 1;
+  document.getElementById("quizNextRow").innerHTML =
+    `<button class="btn teal small">${isLast ? "See My Score →" : "Next Question →"}</button>`;
+  document.querySelector("#quizNextRow button").addEventListener("click", ()=>{
+    if(isLast){ renderScore(); }
+    else { currentQIndex++; renderQuestion(); }
+  });
+}
+
+function renderScore(){
+  const total = currentQuiz.questions.length;
+  let emoji, msg;
+  const pct = currentScore / total;
+  if(pct === 1){ emoji="🏆"; msg="PERFECT SCORE! You are officially a Bonkers Scientist!"; }
+  else if(pct >= 0.6){ emoji="🎉"; msg="Awesome work! Your science brain is growing fast."; }
+  else { emoji="🔬"; msg="Nice try! Rewatch the video and give it another go — that's real science!"; }
+
+  document.getElementById("quizStage").innerHTML = `
+    <div class="quiz-score-emoji">${emoji}</div>
+    <h3 style="text-align:center;">You scored ${currentScore} / ${total}</h3>
+    <p style="text-align:center;">${msg}</p>
+    <div style="display:flex; justify-content:center; gap:12px; margin-top:20px; flex-wrap:wrap;">
+      <button class="btn teal small" id="retryQuizBtn">🔁 Try Again</button>
+      <button class="btn small" id="doneQuizBtn">← Back to Quiz List</button>
+    </div>
+  `;
+  document.getElementById("retryQuizBtn").addEventListener("click", ()=> openQuiz(currentQuiz.id));
+  document.getElementById("doneQuizBtn").addEventListener("click", ()=>{
+    document.getElementById("quizStageWrap").style.display = "none";
+    document.getElementById("quizPickerWrap").style.display = "block";
+  });
+}
+
+/* ==========================================================================
+   5. LITTLE EXTRAS — bubble field + confetti burst
+   ========================================================================== */
+(function makeBubbles(){
+  const field = document.getElementById("bubbleField");
+  const count = 14;
+  for(let i=0;i<count;i++){
+    const b = document.createElement("div");
+    b.className = "bubble";
+    const size = 10 + Math.random()*26;
+    b.style.width = size+"px";
+    b.style.height = size+"px";
+    b.style.left = (Math.random()*100)+"%";
+    b.style.animationDuration = (6 + Math.random()*6)+"s";
+    b.style.animationDelay = (Math.random()*6)+"s";
+    field.appendChild(b);
+  }
+})();
+
+function launchConfetti(){
+  const colors = ["#00C2B2","#FFD23F","#FF5DA2","#9DE649"];
+  for(let i=0;i<24;i++){
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    const size = 6 + Math.random()*6;
+    piece.style.width = size+"px";
+    piece.style.height = (size*1.6)+"px";
+    piece.style.left = (Math.random()*100)+"vw";
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.animationDuration = (1.6 + Math.random()*1)+"s";
+    document.body.appendChild(piece);
+    setTimeout(()=> piece.remove(), 2800);
+  }
+}
+</script>
+</body>
+</html>
